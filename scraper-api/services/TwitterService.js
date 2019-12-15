@@ -53,7 +53,6 @@ class TwitterService extends Twitter {
    */
   async manageData(data, key, initial) {
     try {
-      console.log('====================start');
       const tweetsPromises = [];
       const alldays = await this.DB.Days.find({});
       const daysMap = {};
@@ -83,7 +82,6 @@ class TwitterService extends Twitter {
             created_at: formatedDate,
           }, {
             $inc: { [key]: 1 },
-            // [key]: day[key] + 1,
           }));
           day[key] += 1;
         }
@@ -93,7 +91,6 @@ class TwitterService extends Twitter {
       }
       await Promise.all(tweetsPromises);
       await Promise.all(daysPromises);
-      console.log('====================end');
       let state = {
         first_id: data[0] ? data[0].id : 0,
         max_id: data[data.length - 1].id,
@@ -115,69 +112,6 @@ class TwitterService extends Twitter {
       throw err;
     }
   }
-
-  /**
-   * 
-   * @param {Array} data 
-   * @param {String} key 
-   * @param {Boolean} initial 
-   */
-  // async manageData(data, key, initial) {
-  //   try {
-  //     console.log('====================start');
-  //     const tweetsPromises = [];
-  //     for (let i = 0; i < data.length; i += 1) {
-  //       const result = {
-  //         id: data[i].id,
-  //         text: data[i].text,
-  //         created_at: data[i].created_at,
-  //         topic: key,
-  //       };
-  //       // YYYY-MM-DD
-  //       const formatedDate = new Date(data[i].created_at).toISOString().substring(0, 10);
-  //       const day = await this.DB.Days.findOne({
-  //         created_at: formatedDate,
-  //       });
-  //       if (!day) {
-  //         const newDay = new this.DB.Days({
-  //           created_at: formatedDate,
-  //           [key]: 1,
-  //         });
-  //         await newDay.save();
-  //       } else {
-  //         await this.DB.Days.updateOne({
-  //           created_at: formatedDate,
-  //         }, {
-  //           [key]: day[key] + 1,
-  //         });
-  //       }
-
-  //       const tweet = new this.DB.Tweets(result);
-  //       tweetsPromises.push(tweet.save());
-  //     }
-  //     await Promise.all(tweetsPromises);
-  //     console.log('====================end');
-  //     let state = {
-  //       first_id: data[0] ? data[0].id : 0,
-  //       max_id: data[data.length - 1].id,
-  //     };
-  //     if (!initial) {
-  //       // if it is not the  first call
-  //       state = await this.redis.get(key);
-  //       state = JSON.parse(state);
-  //       state.max_id = data[data.length - 1].id;
-  //       if (!data.length) {
-  //         // if there is no data left, start scraping the updated ones.
-  //         state.since_id = state.first_id;
-  //         delete state.max_id;
-  //       }
-  //     }
-  //     await this.redis.set(key, JSON.stringify(state));
-  //   } catch (err) {
-  //     console.log(`-----manageData------${err}-----------`);
-  //     throw err;
-  //   }
-  // }
 
   /**
    * 
@@ -229,7 +163,6 @@ class TwitterService extends Twitter {
         callCount = await this.redis.get('call_count');
         callCount = Number(callCount);
         await this.manageData(ladyGagaData, 'ladygaga', initialCall);
-        console.log(callCount, 'callcount');
       }
       await this.redis.setReminder(1000);
     } catch (err) {
