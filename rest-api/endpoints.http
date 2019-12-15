@@ -1,0 +1,3 @@
+GET http://localhost:3001/tweets?page=1
+
+content-type: application/json
